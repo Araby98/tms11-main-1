@@ -1,0 +1,29 @@
+{
+  "users": [
+    {
+      "id": "admin-default-001",
+      "firstName": "Admin",
+      "lastName": "Système",
+      "email": "admin@mouvement.ma",
+      "password": "admin123",
+      "grade": "administrateur",
+      "region": "Rabat-Salé-Kénitra",
+      "fromProvince": "Rabat",
+      "role": "admin"
+    },
+    {
+      "firstName": "a",
+      "lastName": "a",
+      "email": "a@a.com",
+      "password": "azerqsd",
+      "grade": "administrateur",
+      "region": "Tanger-Tétouan-Al Hoceïma",
+      "fromProvince": "Tanger-Assilah",
+      "id": "d16dad9c-230e-4213-be99-070d8ccdece7",
+      "role": "user"
+    }
+  ],
+  "wishes": [],
+  "transfers": [],
+  "notifications": []
+}
