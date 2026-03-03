@@ -82,6 +82,14 @@ async function main() {
   }
 
   // ── Auth routes ──
+  // Basic endpoints
+  app.get("/", (_req, res) => {
+    res.json({ status: "ok", service: "tms11-backend", env: process.env.NODE_ENV || "production" });
+  });
+
+  // Health check for load balancers / uptime monitors
+  app.get("/health", (_req, res) => res.sendStatus(200));
+
   app.post("/api/login", (req, res) => {
     const { email, password } = req.body;
     const user = db.users.find((u) => u.email === email);
