@@ -65,9 +65,9 @@ async function migrate(databaseUrl: string) {
 
       for (const u of db.users || []) {
         await client.query(
-          `INSERT INTO users(id, firstname, lastname, email, password, grade, region, fromprovince, role)
-           VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
-          [u.id, u.firstName, u.lastName, u.email, u.password, u.grade, u.region, u.fromProvince, u.role]
+          `INSERT INTO users(id, firstname, lastname, email, phone, password, grade, region, fromprovince, role)
+           VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
+          [u.id, u.firstName, u.lastName, u.email, u.phone || null, u.password, u.grade, u.region, u.fromProvince, u.role]
         );
       }
 

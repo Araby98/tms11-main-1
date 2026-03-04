@@ -70,6 +70,7 @@ const ensureTables = async () => {
       firstName TEXT,
       lastName TEXT,
       email TEXT,
+      phone TEXT,
       password TEXT,
       grade TEXT,
       region TEXT,
@@ -102,6 +103,8 @@ const ensureTables = async () => {
       read BOOLEAN
     );
   `);
+  // Add phone column if it doesn't exist (safe migration for existing DBs)
+  await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS phone TEXT;`);
 };
 
 export const loadDB = async (): Promise<DB> => {
@@ -154,9 +157,9 @@ export const saveDB = async (db: DB): Promise<void> => {
     // Insert users
     for (const u of db.users) {
       await client.query(
-        `INSERT INTO users(id, firstname, lastname, email, password, grade, region, fromprovince, role)
-         VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
-        [u.id, u.firstName, u.lastName, u.email, u.password, u.grade, u.region, u.fromProvince, u.role]
+        `INSERT INTO users(id, firstname, lastname, email, phone, password, grade, region, fromprovince, role)
+         VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
+        [u.id, u.firstName, u.lastName, u.email, (u as any).phone || null, u.password, u.grade, u.region, u.fromProvince, u.role]
       );
     }
 

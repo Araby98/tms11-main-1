@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLang } from "@/contexts/LanguageContext";
-import { apiGetTransfers, apiGetUsers, apiGetWishes } from "@/lib/api";
+import { apiGetTransfers, apiGetUsers, apiGetWishes, apiUpdateWish, apiDeleteWish } from "@/lib/api";
 import { User, TransferRequest, TransferWish } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -36,6 +36,12 @@ const Dashboard = () => {
   const getUserName = (id: string) => {
     const u = users.find((u) => u.id === id);
     return u ? `${u.firstName} ${u.lastName}` : t("common.unknown");
+  };
+
+  const getUserContact = (id: string) => {
+    const u = users.find((u) => u.id === id);
+    if (!u) return t("common.unknown");
+    return `${u.firstName} ${u.lastName}${u.phone ? ` · ${u.phone}` : ""}`;
   };
 
   const statusLabel: Record<string, string> = {
@@ -117,14 +123,52 @@ const Dashboard = () => {
                       </p>
                     </div>
                   </div>
-                  {w.matchedTransferId ? (() => {
-                    const tr = transfers.find((t) => t.id === w.matchedTransferId);
-                    if (tr?.status === "approved") return <Badge variant="default">{t("dash.matched")}</Badge>;
-                    if (tr?.status === "rejected") return <Badge variant="destructive">{t("dash.rejected")}</Badge>;
-                    return <Badge variant="outline">{t("dash.pending")}</Badge>;
-                  })() : (
-                    <Badge variant="outline">{t("dash.pending")}</Badge>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {w.userId === user?.id && (
+                      <>
+                        <button
+                          className="text-sm text-primary underline"
+                          onClick={async () => {
+                            const newFrom = window.prompt(t("dash.edit_from"), w.fromProvince) || w.fromProvince;
+                            const newTo = window.prompt(t("dash.edit_to"), w.toProvince) || w.toProvince;
+                            try {
+                              const res = await apiUpdateWish(w.id, { fromProvince: newFrom, toProvince: newTo });
+                              setWishes((prev) => prev.map((pw) => (pw.id === w.id ? res.wish : pw)));
+                            } catch (err) {
+                              console.error(err);
+                              alert(t("dash.update_error"));
+                            }
+                          }}
+                        >
+                          {t("common.edit")}
+                        </button>
+                        <button
+                          className="text-sm text-destructive underline"
+                          onClick={async () => {
+                            if (!confirm(t("dash.confirm_delete"))) return;
+                            try {
+                              await apiDeleteWish(w.id);
+                              setWishes((prev) => prev.filter((pw) => pw.id !== w.id));
+                            } catch (err) {
+                              console.error(err);
+                              alert(t("dash.delete_error"));
+                            }
+                          }}
+                        >
+                          {t("common.delete")}
+                        </button>
+                      </>
+                    )}
+
+                    {w.matchedTransferId ? (() => {
+                      const tr = transfers.find((t) => t.id === w.matchedTransferId);
+                      if (tr?.status === "approved") return <Badge variant="default">{t("dash.matched")}</Badge>;
+                      if (tr?.status === "rejected") return <Badge variant="destructive">{t("dash.rejected")}</Badge>;
+                      return <Badge variant="outline">{t("dash.pending")}</Badge>;
+                    })() : (
+                      <Badge variant="outline">{t("dash.pending")}</Badge>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -154,7 +198,7 @@ const Dashboard = () => {
                         {tr.type === "mutual" ? t("dash.mutual") : t("dash.cycle")}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {tr.participants.map((p) => `${getUserName(p.userId)} (${p.fromProvince} → ${p.toProvince})`).join(" · ")}
+                        {tr.participants.map((p) => `${getUserContact(p.userId)} (${p.fromProvince} → ${p.toProvince})`).join(" · ")}
                       </p>
                     </div>
                   </div>
