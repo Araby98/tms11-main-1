@@ -18,6 +18,7 @@ const Profile = () => {
     firstName: user?.firstName || "",
     lastName: user?.lastName || "",
     email: user?.email || "",
+    phone: (user as any)?.phone || "",
     grade: (user?.grade || "") as Grade,
     region: user?.region || "",
     fromProvince: user?.fromProvince || "",
@@ -76,6 +77,10 @@ const Profile = () => {
             <div className="space-y-2">
               <Label htmlFor="email">{t("auth.email")}</Label>
               <Input id="email" type="email" value={form.email} onChange={(e) => update("email", e.target.value)} required />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="phone">{t("auth.phone")}</Label>
+              <Input id="phone" value={form.phone} onChange={(e) => update("phone", e.target.value)} />
             </div>
             <div className="space-y-2">
               <Label>{t("auth.grade")}</Label>
