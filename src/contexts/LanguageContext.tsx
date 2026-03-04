@@ -49,7 +49,7 @@ const translations: Record<string, Record<Lang, string>> = {
   "auth.select_region": { fr: "Sélectionner la région", ar: "اختر الجهة" },
   "auth.select_province": { fr: "Sélectionner la province", ar: "اختر الإقليم" },
   "auth.choose_region_first": { fr: "Choisir d'abord une région", ar: "اختر الجهة أولاً" },
-  "auth.admin_label": { fr: "Administrateur", ar: "مسؤول" },
+  "auth.admin_label": { fr: "Administrateur", ar: "متصرف" },
   "auth.tech_label": { fr: "Technicien", ar: "تقني" },
   "auth.login_success": { fr: "Connexion réussie", ar: "تم تسجيل الدخول بنجاح" },
   "auth.signup_success": { fr: "Inscription réussie !", ar: "تم التسجيل بنجاح!" },
