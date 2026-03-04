@@ -5,6 +5,10 @@ import { apiGetTransfers, apiGetUsers, apiGetWishes, apiUpdateWish, apiDeleteWis
 import { User, TransferRequest, TransferWish } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { ArrowLeftRight, RotateCw, Users, Clock, ArrowRight } from "lucide-react";
 
 const Dashboard = () => {
@@ -42,6 +46,35 @@ const Dashboard = () => {
     const u = users.find((u) => u.id === id);
     if (!u) return t("common.unknown");
     return `${u.firstName} ${u.lastName}${u.phone ? ` · ${u.phone}` : ""}`;
+  };
+
+  // Modal edit flow
+  const [editingWish, setEditingWish] = useState<TransferWish | null>(null);
+  const [editFrom, setEditFrom] = useState("");
+  const [editTo, setEditTo] = useState("");
+
+  const openEdit = (w: TransferWish) => {
+    setEditingWish(w);
+    setEditFrom(w.fromProvince);
+    setEditTo(w.toProvince);
+  };
+
+  const closeEdit = () => {
+    setEditingWish(null);
+    setEditFrom("");
+    setEditTo("");
+  };
+
+  const submitEdit = async () => {
+    if (!editingWish) return;
+    try {
+      const res = await apiUpdateWish(editingWish.id, { fromProvince: editFrom, toProvince: editTo });
+      setWishes((prev) => prev.map((pw) => (pw.id === editingWish.id ? res.wish : pw)));
+      closeEdit();
+    } catch (err) {
+      console.error(err);
+      alert(t("dash.update_error"));
+    }
   };
 
   const statusLabel: Record<string, string> = {
@@ -126,22 +159,7 @@ const Dashboard = () => {
                   <div className="flex items-center gap-2">
                     {w.userId === user?.id && (
                       <>
-                        <button
-                          className="text-sm text-primary underline"
-                          onClick={async () => {
-                            const newFrom = window.prompt(t("dash.edit_from"), w.fromProvince) || w.fromProvince;
-                            const newTo = window.prompt(t("dash.edit_to"), w.toProvince) || w.toProvince;
-                            try {
-                              const res = await apiUpdateWish(w.id, { fromProvince: newFrom, toProvince: newTo });
-                              setWishes((prev) => prev.map((pw) => (pw.id === w.id ? res.wish : pw)));
-                            } catch (err) {
-                              console.error(err);
-                              alert(t("dash.update_error"));
-                            }
-                          }}
-                        >
-                          {t("common.edit")}
-                        </button>
+                        <button className="text-sm text-primary underline" onClick={() => openEdit(w)}>{t("common.edit")}</button>
                         <button
                           className="text-sm text-destructive underline"
                           onClick={async () => {
@@ -209,6 +227,29 @@ const Dashboard = () => {
           </CardContent>
         </Card>
       )}
+
+      {/* Edit Wish Modal */}
+      <Dialog open={!!editingWish} onOpenChange={(open) => { if (!open) closeEdit(); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("dash.edit_request")}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-2">
+              <Label>{t("dash.from_province")}</Label>
+              <Input value={editFrom} onChange={(e) => setEditFrom(e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label>{t("dash.to_province")}</Label>
+              <Input value={editTo} onChange={(e) => setEditTo(e.target.value)} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="secondary" onClick={closeEdit}>{t("common.cancel")}</Button>
+            <Button onClick={submitEdit}>{t("common.save")}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
